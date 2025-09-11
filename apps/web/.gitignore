@@ -1,0 +1,52 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+apps/web/client_secret_1010365688504-i11142d4ne89ssmvfrt80kvfhdpkhc8v.apps.googleusercontent.com.json
+/Users/yash/code/ai-learning-app/apps/web/client_secret_1010365688504-i11142d4ne89ssmvfrt80kvfhdpkhc8v.apps.googleusercontent.com.json
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+/logs
+
+/taste
+
+logs/2025-01-14.log
+
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+logs/*.log

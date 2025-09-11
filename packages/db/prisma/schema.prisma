@@ -1,0 +1,942 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Simplified enums - removed role distinctions
+
+enum SpaceMembershipStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+//MARKETING RELATED MODELS
+
+model WaitlistEntry {
+  id        String         @id @default(cuid())
+  email     String         @unique
+  intention String         @db.Text
+  status    WaitlistStatus @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+enum WaitlistStatus {
+  PENDING
+  APPROVED
+  INVITED
+  JOINED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DemoBookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+// Add this enum for space visibility
+enum SpaceVisibility {
+  PRIVATE
+  PUBLIC
+  ORGANIZATION_ONLY
+}
+
+// Add this enum for study material types
+enum StudyMaterialType {
+  YOUTUBE_VIDEO
+  PDF_DOCUMENT
+  DOC_DOCUMENT
+  AUDIO_RECORDING
+  TEXT_NOTES
+  OTHER
+}
+
+enum SpaceOnboardingStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum SpaceOnboardingStepType {
+  AUDIO
+  VIDEO
+  TEXT
+  MIXED // For steps that combine multiple content types
+}
+
+enum SpaceOnboardingStepStatus {
+  PENDING
+  COMPLETED
+  SKIPPED
+}
+
+enum SpaceOnboardingProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+model ProductReview {
+  id          String       @id @default(uuid())
+  productSlug String // This will store the route name like "ai-agent", "ai-chrome-extension" etc.
+  rating      Int
+  reviewBody  String       @db.Text
+  authorName  String
+  authorId    String?
+  user        User?        @relation(fields: [authorId], references: [id])
+  status      ReviewStatus @default(PENDING)
+  isVerified  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([productSlug])
+  @@index([authorId])
+}
+
+model ReviewGenerationRecord {
+  id              String   @id @default(uuid())
+  totalReviews    Int
+  successCount    Int
+  failureCount    Int
+  startTime       DateTime
+  endTime         DateTime
+  errors          String[]
+  productsSummary Json // This will store the GenerationSummary array
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model DemoBooking {
+  id            String            @id @default(cuid())
+  name          String
+  email         String
+  company       String
+  role          String
+  teamSize      Int
+  monthlyBudget Float
+  goals         String
+  source        String
+  utmParams     String
+  status        DemoBookingStatus @default(PENDING)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+// Add these models for Auth.js v5
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  sessionToken String    @unique @map("session_token")
+  userId       String    @map("user_id")
+  expiresAt    DateTime?
+  expires      DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Updated User model to work with Auth.js
+model User {
+  id       String  @id @default(cuid())
+  name     String?
+  username String? @unique
+
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations for your application
+  organizations UserOrganization[]
+  invitations   Invitation[]
+  reviews       ProductReview[]
+  // User preferences and settings
+  preferences   Json?
+  lastLoginAt   DateTime?
+
+  spaces           Space[]
+  studyMaterials   StudyMaterial[]
+  spaceMemberships SpaceMembership[]
+
+  // Zoom OAuth Integration
+  zoomAccessToken    String?
+  zoomRefreshToken   String?
+  zoomTokenExpiresAt DateTime?
+  zoomAccountId      String?
+  zoomConnectedAt    DateTime?
+
+  isAdmin      Boolean        @default(false)
+  isBetaTester Boolean        @default(false)
+  blogPosts    BlogPost[]
+  Chat         Chat[]
+  FlashcardSet FlashcardSet[]
+  SummarySet   SummarySet[]
+  Quiz         Quiz[]
+  Meeting      Meeting[]
+
+  extensionAuthCodes     ExtensionAuthCode[]
+  extensionRefreshTokens ExtensionRefreshToken[]
+  extensionUsage         ExtensionUsage[]
+  ZoomOAuthState         ZoomOAuthState[]
+  courseWaitlistEntries  CourseWaitlistEntry[]
+
+  // ADD THESE LINES - Space onboarding relations
+  createdSpaceOnboardings        SpaceOnboarding[]
+  spaceOnboardingProgress        SpaceOnboardingProgress[]
+  spaceOnboardingStepProgress    SpaceOnboardingStepProgress[]
+
+  @@index([email])
+}
+
+// Your existing UserOrganization model
+model UserOrganization {
+  id             String   @id @default(cuid())
+  userId         String
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// Updated Organization model with team features
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Subscription fields
+  subscriptionPlan      SubscriptionPlan   @default(FREE)
+  subscriptionStatus    SubscriptionStatus @default(ACTIVE)
+  subscriptionStartDate DateTime?
+  subscriptionEndDate   DateTime?
+  stripeSubscriptionId  String?
+  stripeCustomerId      String?
+  hasUsedTrial          Boolean            @default(false)
+
+  // Relations
+  users       UserOrganization[]
+  invitations Invitation[]
+  spaces      Space[]
+
+  // Team and general settings
+  settings        Json? // General organization settings
+  teamSettings    Json? // Team-specific settings
+  maxTeamMembers  Int? // Limit based on subscription plan
+
+  @@index([subscriptionPlan])
+  @@index([subscriptionStatus])
+}
+
+model Invitation {
+  id             String           @id @default(cuid())
+  email          String
+  organizationId String
+  status         InvitationStatus @default(PENDING)
+  token          String           @unique
+  createdAt      DateTime         @default(now())
+  expiresAt      DateTime
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy    User         @relation(fields: [invitedById], references: [id])
+  invitedById  String
+
+  @@index([email])
+  @@index([organizationId])
+  @@index([token])
+}
+
+// Main Space model
+model Space {
+  id          String  @id @default(cuid())
+  name        String
+  description String? @db.Text
+  slug        String  @unique
+
+  // Visibility settings
+  isPublic   Boolean         @default(false)
+  visibility SpaceVisibility @default(PRIVATE)
+
+  // Owner and organization
+  ownerId        String
+  owner          User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Study materials in this space
+  studyMaterials StudyMaterial[]
+
+  // Space memberships
+  memberships SpaceMembership[]
+
+  // ADD THIS LINE - Space onboarding
+  onboarding SpaceOnboarding?
+
+  // Space settings and metadata
+  settings Json? // Can store UI preferences, study modes, etc.
+  tags     String[] @default([])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Chat         Chat[]
+  FlashcardSet FlashcardSet[]
+  SummarySet   SummarySet[]
+  Quiz         Quiz[]
+  Meeting      Meeting[]
+
+  @@index([ownerId])
+  @@index([organizationId])
+  @@index([isPublic])
+  @@index([visibility])
+  @@index([slug])
+}
+
+
+// Add this new model for space memberships
+model SpaceMembership {
+  id      String                @id @default(cuid())
+  spaceId String
+  userId  String
+  status  SpaceMembershipStatus @default(ACTIVE)
+
+  // Timestamps
+  joinedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // A user can only have one membership per space
+  @@unique([spaceId, userId])
+  @@index([spaceId])
+  @@index([userId])
+}
+
+// Study Material model for content within spaces
+model StudyMaterial {
+  id          String            @id @default(cuid())
+  title       String
+  description String?           @db.Text
+  type        StudyMaterialType
+  docid       String            @unique
+
+  // Content URLs and file paths
+  youtubeUrl   String?
+  fileUrl      String? // For uploaded PDFs, docs, etc.
+  recordingUrl String? // For recorded lectures
+
+  // File metadata
+  fileName String?
+  fileSize Int? // in bytes
+  mimeType String?
+  duration Int? // for videos/audio in seconds
+
+  // Content processing status
+  isProcessed      Boolean @default(false)
+  processingStatus String? // "pending", "processing", "completed", "failed"
+  isChunk          Boolean @default(true) // Whether this material should be chunked for RAG
+
+  isPublic Boolean @default(false)
+
+  // Relations
+  spaceId      String?
+  space        Space?  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User    @relation(fields: [uploadedById], references: [id])
+
+  // Additional metadata
+  metadata Json? // Can store transcripts, summaries, etc.
+
+  // Timestamps
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  FlashcardSet FlashcardSet[]
+
+  SummarySet SummarySet[]
+  Quiz       Quiz[]
+
+  @@index([spaceId])
+  @@index([uploadedById])
+  @@index([type])
+}
+
+// Main space onboarding configuration
+model SpaceOnboarding {
+  id          String                    @id @default(cuid())
+  spaceId     String                    @unique // One onboarding per space
+  title       String
+  description String?                   @db.Text
+  status      SpaceOnboardingStatus     @default(DRAFT)
+  
+  // Configuration
+  totalSteps       Int              @default(0)
+  estimatedMinutes Int?             // Total estimated completion time
+  isRequired       Boolean          @default(false) // Whether members must complete onboarding
+  
+  // Created by space owner
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  
+  // Relations
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  steps SpaceOnboardingStep[]
+  
+  // User progress tracking
+  userProgress SpaceOnboardingProgress[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([spaceId])
+  @@index([createdById])
+  @@index([status])
+}
+
+// Individual steps in the space onboarding process
+model SpaceOnboardingStep {
+  id             String                      @id @default(cuid())
+  onboardingId   String
+  title          String
+  description    String?                     @db.Text
+  stepNumber     Int                         // Order of the step (1, 2, 3, etc.)
+  stepType       SpaceOnboardingStepType
+  
+  // Content based on step type
+  textContent    String?                     @db.Text // For TEXT and MIXED types
+  audioUrl       String?                     // For AUDIO and MIXED types
+  videoUrl       String?                     // For VIDEO and MIXED types
+  
+  // File metadata for uploaded content
+  audioFileName  String?
+  videoFileName  String?
+  audioFileSize  Int?                        // in bytes
+  videoFileSize  Int?                        // in bytes
+  audioDuration  Int?                        // in seconds
+  videoDuration  Int?                        // in seconds
+  
+  // Step configuration
+  estimatedMinutes Int?                      // Time to complete this step
+  isRequired       Boolean                   @default(true) // Whether this step can be skipped
+  
+  // Additional metadata
+  metadata Json? // For storing additional step-specific data
+  
+  // Relations
+  onboarding SpaceOnboarding @relation(fields: [onboardingId], references: [id], onDelete: Cascade)
+  
+  // User progress on this step
+  userStepProgress SpaceOnboardingStepProgress[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([onboardingId, stepNumber]) // Ensure unique step numbers per onboarding
+  @@index([onboardingId])
+  @@index([stepNumber])
+  @@index([stepType])
+}
+
+// Track user progress through the entire space onboarding
+model SpaceOnboardingProgress {
+  id             String                          @id @default(cuid())
+  onboardingId   String
+  userId         String
+  status         SpaceOnboardingProgressStatus   @default(NOT_STARTED)
+  
+  // Progress tracking
+  currentStepNumber Int                          @default(1)
+  completedSteps    Int                          @default(0)
+  totalSteps        Int                          // Snapshot of total steps when started
+  
+  // Timestamps
+  startedAt   DateTime?
+  completedAt DateTime?
+  lastActiveAt DateTime                         @default(now())
+  createdAt   DateTime                         @default(now())
+  updatedAt   DateTime                         @updatedAt
+  
+  // Relations
+  onboarding SpaceOnboarding @relation(fields: [onboardingId], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Individual step progress
+  stepProgress SpaceOnboardingStepProgress[]
+  
+  // One progress record per user per onboarding
+  @@unique([onboardingId, userId])
+  @@index([onboardingId])
+  @@index([userId])
+  @@index([status])
+  @@index([lastActiveAt])
+}
+
+// Track progress on individual space onboarding steps
+model SpaceOnboardingStepProgress {
+  id                  String                      @id @default(cuid())
+  onboardingProgressId String
+  stepId              String
+  userId              String
+  status              SpaceOnboardingStepStatus   @default(PENDING)
+  
+  // Time tracking
+  timeSpentSeconds Int?                          // Time spent on this step
+  startedAt        DateTime?
+  completedAt      DateTime?
+  
+  // Optional feedback or notes
+  userNotes String?                             @db.Text
+  
+  // Relations
+  onboardingProgress SpaceOnboardingProgress @relation(fields: [onboardingProgressId], references: [id], onDelete: Cascade)
+  step               SpaceOnboardingStep     @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // One progress record per user per step
+  @@unique([onboardingProgressId, stepId])
+  @@index([onboardingProgressId])
+  @@index([stepId])
+  @@index([userId])
+  @@index([status])
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String
+  content     String   @db.Text
+  description String   @db.Text
+  date        DateTime
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id])
+  language    String   @default("en")
+  categories  String[] @default([])
+  isPublished Boolean  @default(false)
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([language])
+  @@index([isPublished])
+}
+
+model NewsletterSubscriber {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  subscriberType String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("newsletter_subscribers")
+}
+
+model WorkshopRegistration {
+  id             String  @id @default(cuid())
+  email          String  @unique
+  firstName      String
+  lastName       String
+  phone          String?
+  department     String? // Department/Role field
+  experience     String // "BEGINNER", "INTERMEDIATE", "ADVANCED"
+  goals          String? @db.Text
+  referralSource String?
+  workshopType   String // "PROMPT_ENGINEERING", etc.
+
+  status    String   @default("REGISTERED") // "REGISTERED", "ATTENDED", "NO_SHOW"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("workshop_registrations")
+}
+
+model BootcampRegistration {
+  id          String  @id @default(cuid())
+  email       String  @unique
+  firstName   String
+  lastName    String
+  phone       String?
+  department  String?
+  experience  String
+  pricingTier String
+
+  goals          String?  @db.Text
+  referralSource String?
+  status         String   @default("REGISTERED")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("bootcamp_registrations")
+}
+
+model Chat {
+  id      String  @id @default(cuid())
+  spaceId String?
+  userId  String
+
+  chatType ChatType @default(MATERIAL)
+
+  studyMaterialId  String?
+  studyMaterialIds String[] @default([])
+
+  query    String @db.Text
+  response String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space Space? @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([spaceId])
+  @@index([studyMaterialId])
+  @@index([chatType])
+  @@index([createdAt])
+}
+
+enum ChatType {
+  MATERIAL
+  SPACE
+}
+
+model FlashcardSet {
+  id              String   @id @default(cuid())
+  flashcards      Json // Array of flashcard objects stored as JSON
+  totalCards      Int // Quick reference for card count
+  studyMaterialId String
+  userId          String
+  spaceId         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  studyMaterial StudyMaterial @relation(fields: [studyMaterialId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space         Space?        @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  // Ensure one flashcard set per user per study material
+  @@unique([studyMaterialId, userId], name: "studyMaterialId_userId")
+  @@index([userId])
+  @@map("flashcard_sets")
+}
+
+model SummarySet {
+  id              String   @id @default(cuid())
+  summary         Json // Summary object with all sections
+  studyMaterialId String
+  userId          String
+  spaceId         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  studyMaterial StudyMaterial @relation(fields: [studyMaterialId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space         Space?        @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@unique([studyMaterialId, userId])
+  @@map("summary_sets")
+}
+
+model Quiz {
+  id              String  @id @default(cuid())
+  studyMaterialId String
+  userId          String
+  spaceId         String?
+
+  // Quiz Set Data
+  questions      Json // Array of quiz questions with correct answers
+  totalQuestions Int
+  quizSetVersion String @default("1.0")
+
+  // Progress Tracking
+  currentQuestionIndex Int     @default(0)
+  userAnswers          Json    @default("{}") // { "0": "A", "1": "B", ... }
+  showFeedback         Json    @default("{}") // { "0": true, "1": false, ... }
+  showScoreReport      Boolean @default(false)
+
+  // Completion Status
+  answeredCount  Int       @default(0)
+  correctAnswers Int? // Only set when quiz is completed
+  isCompleted    Boolean   @default(false)
+  completedAt    DateTime?
+
+  // Timestamps
+  lastAttempted DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  studyMaterial StudyMaterial @relation(fields: [studyMaterialId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space         Space?        @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@unique([studyMaterialId, userId])
+  @@index([userId])
+  @@index([studyMaterialId])
+  @@index([spaceId])
+  @@index([isCompleted])
+  @@index([completedAt])
+}
+
+model Meeting {
+  id          String  @id @default(cuid())
+  spaceId     String
+  title       String
+  description String? @db.Text
+
+  // Zoom meeting details
+  zoomMeetingId String  @unique
+  zoomJoinUrl   String  @db.Text
+  zoomStartUrl  String  @db.Text
+  zoomPassword  String?
+
+  // Meeting schedule
+  scheduledAt DateTime
+  duration    Int // Duration in minutes
+
+  // Meeting status
+  status MeetingStatus @default(SCHEDULED)
+
+  // Created by
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  // Relations
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([spaceId])
+  @@index([createdById])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  STARTED
+  ENDED
+  CANCELLED
+}
+
+// Extension OAuth Authorization Codes
+model ExtensionAuthCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  userId      String
+  clientId    String
+  redirectUri String
+  state       String
+  scope       String   @default("profile")
+  used        Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("extension_auth_codes")
+}
+
+// Extension Refresh Tokens
+model ExtensionRefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  clientId  String
+  scope     String   @default("profile")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("extension_refresh_tokens")
+}
+
+// Extension Usage Analytics (Optional - for tracking extension usage)
+model ExtensionUsage {
+  id               String   @id @default(cuid())
+  userId           String
+  action           String // 'extract_content', 'view_popup', etc.
+  contentType      String? // 'youtube', 'webpage'
+  url              String?  @db.Text
+  metadata         Json? // Additional data about the action
+  userAgent        String?  @db.Text
+  extensionVersion String?
+  createdAt        DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("extension_usage")
+}
+
+// Add new model for Zoom OAuth state management
+model ZoomOAuthState {
+  id        String   @id @default(cuid())
+  state     String   @unique
+  userId    String
+  spaceId   String? // Optional: if connecting for specific space
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([state])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("zoom_oauth_states")
+}
+
+// Add this enum for course types
+enum CourseType {
+  VIBE_CODING
+  AI_FUNDAMENTALS
+  PROMPT_ENGINEERING
+  MACHINE_LEARNING
+  WEB_DEVELOPMENT
+  DATA_SCIENCE
+  BLOCKCHAIN
+  MOBILE_DEVELOPMENT
+}
+
+enum CourseWaitlistStatus {
+  PENDING
+  APPROVED
+  INVITED
+  ENROLLED
+  CANCELLED
+}
+
+model CourseWaitlistEntry {
+  id          String              @id @default(cuid())
+  email       String
+  firstName   String
+  lastName    String
+  phone       String?
+  courseType  CourseType
+  status      CourseWaitlistStatus @default(PENDING)
+  experience  String               // "BEGINNER", "INTERMEDIATE", "ADVANCED"
+  goals       String?              @db.Text
+  department  String?              // For professional/student context
+  referralSource String?
+  
+  // Optional user association
+  userId     String?
+  user       User?   @relation(fields: [userId], references: [id])
+
+  // Metadata
+  metadata   Json?                // For course-specific additional data
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@unique([email, courseType])   // One waitlist entry per email per course
+  @@index([courseType])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+}

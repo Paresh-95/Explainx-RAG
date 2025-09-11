@@ -1,0 +1,49 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
+bun.lockb
+bun.lock
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+client_secret_305286210569-q3bd3qvlgg8dug3ue9a2ge31kinvpf17.apps.googleusercontent.com.json
+
+client_secret_1010365688504-i11142d4ne89ssmvfrt80kvfhdpkhc8v.apps.googleusercontent.com.json
+
+extract_workshop_emails.py
+
+stripe-test.js
+
+z_cs
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build Outputs
+.next/
+out/
+build
+dist
+
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+*.pem

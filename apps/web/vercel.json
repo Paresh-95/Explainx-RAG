@@ -1,0 +1,14 @@
+{
+  "ignoreCommand": "npx turbo-ignore",
+  "crons": [
+    {
+      "path": "/api/chat/sync",
+      "schedule": "*/4 * * * *"
+    }
+  ],
+  "functions": {
+    "app/api/reports/historical/route.ts": {
+      "maxDuration": 300
+    }
+  }
+}

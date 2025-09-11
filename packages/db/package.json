@@ -1,0 +1,28 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "main": "./src/server.ts",
+  "types": "./src/server.ts",
+  "module": "./src/server.ts",
+  "type": "module",
+  "exports": {
+    ".": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "db:generate": "bun prisma generate",
+    "postinstall": "bun prisma generate"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@repo/typescript-config": "*"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "prisma": "^6.9.0"
+  }
+}

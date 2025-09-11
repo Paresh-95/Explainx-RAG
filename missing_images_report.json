@@ -1,0 +1,252 @@
+{
+  "missing_images": {
+    "icon-dark.png": [
+      "app/layout.tsx",
+      "app/blog/all/page.tsx"
+    ],
+    "icon.png": [
+      "app/layout.tsx",
+      "app/blog/all/page.tsx"
+    ],
+    "apple-icon.png": [
+      "app/layout.tsx",
+      "app/blog/all/page.tsx"
+    ],
+    "meeting-og.jpg": [
+      "app/(marketing)/demo/page.tsx",
+      "app/(marketing)/meeting/page.tsx"
+    ],
+    "og-image.png.png": [
+      "app/(marketing)/extension/page.tsx"
+    ],
+    "images/logos/discord-logo.png": [
+      "app/(marketing)/support/_components/contact-form.tsx"
+    ],
+    "features/connect-your-analytics.png": [
+      "components/features.tsx"
+    ],
+    "features/verified-creators-only.png": [
+      "components/features.tsx"
+    ],
+    "features/maximum-roi-guaranteed.png": [
+      "components/features.tsx"
+    ],
+    "features/performance-metrics-that-matter.png": [
+      "components/features.tsx"
+    ],
+    "features/grow-personal-brand.png": [
+      "components/features.tsx"
+    ],
+    "features/data-driven-influencers.png": [
+      "components/features.tsx"
+    ],
+    "images/icons/delivery/money.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/scalable.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/fast.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/team.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/safe.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/analytics.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/design.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/flexible.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/icons/delivery/support.svg": [
+      "components/guarantees.tsx"
+    ],
+    "images/brand-logos/lab316.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/secret-alchemist-logo-india.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/viprata.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/level-365.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/Revnsai.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/msn-logo.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/benefits-logo.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/time-keepers.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/r-royale.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/ms-logo.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/matax.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/appsumo.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/google-logo.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/brand-logos/snapy-ai-logo.png": [
+      "components/logo-cloud.tsx"
+    ],
+    "images/comparisons/helium-10.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/viral-launch.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/datahawk.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/webgility.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/perpetua.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/teikametrics.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/bqool.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/merito.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/a2x.png": [
+      "data/competitors.ts"
+    ],
+    "images/comparisons/jungle-scout.png": [
+      "data/competitors.ts"
+    ],
+    "tools/main.jpg": [
+      "data/tool-data.ts"
+    ],
+    "images/tool-images/fba-calculator.jpg": [
+      "data/tool-data.ts"
+    ],
+    "main.jpg": [
+      "data/tool-data.ts"
+    ],
+    "og-operations-managers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-sales-managers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-business-analysts.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/marketing-managers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/ppc-specialists.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/business-owners.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/amazon-sellers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/business-analysts.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/operations-managers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/sales-managers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-multichannel-sellers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "solutions/multichannel-sellers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-ppc-specialists.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-marketing-managers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-business-owners.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "og-amazon-sellers.jpg": [
+      "data/solutionsPageData.ts"
+    ],
+    "images/use-cases/campaign-optimization-hero.jpg": [
+      "data/use-case-data.ts",
+      "data/use-cases/data.ts"
+    ],
+    "images/testimonials/priya-shah.jpg": [
+      "data/use-case-data.ts",
+      "data/use-cases/data.ts"
+    ],
+    "images/use-cases/ads-visualization-hero.jpg": [
+      "data/use-case-data.ts",
+      "data/use-cases/data.ts"
+    ],
+    "images/testimonials/amit-patel.jpg": [
+      "data/use-case-data.ts",
+      "data/use-cases/data.ts"
+    ],
+    "og-reporting-tool.jpg": [
+      "data/productPageData.ts"
+    ],
+    "reporting-dashboard.jpg": [
+      "data/productPageData.ts"
+    ],
+    "images/hero-brands.jpg": [
+      "data/for-pages/index.ts"
+    ],
+    "images/brand-solutions.jpg": [
+      "data/for-pages/index.ts"
+    ],
+    "testimonials/amit.jpg": [
+      "data/for-pages/index.ts"
+    ],
+    "features/product-seeding.png": [
+      "data/features/index.ts"
+    ],
+    "features/ecommerce-integration.png": [
+      "data/features/index.ts"
+    ],
+    "features/campaign-dashboard.png": [
+      "data/features/index.ts"
+    ],
+    "features/creator-discovery.png": [
+      "data/features/index.ts"
+    ],
+    "features/analytics-dashboard.png": [
+      "data/features/index.ts"
+    ],
+    "features/affiliate-management.png": [
+      "data/features/index.ts"
+    ],
+    "features/payment-admin.png": [
+      "data/features/index.ts"
+    ]
+  }
+}

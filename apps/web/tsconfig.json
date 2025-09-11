@@ -1,0 +1,28 @@
+{
+  "extends": "@repo/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "declaration": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@repo/ui": ["../../packages/ui"]
+    },
+    // "jsx": "preserve",
+    // "jsxImportSource": "react"
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    "next.config.mjs",
+    ".next/types/**/*.ts",
+    "tailwind.config.ts",
+    "tailwind.config.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
